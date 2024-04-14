@@ -3,7 +3,8 @@ import torch.nn as nn
 from torchvision.ops import MultiScaleRoIAlign
 
 from .faster_rcnn_framework import FasterRCNN
-
+from .SimAM import Simam_module
+from .dysample import DySample
 
 class MaskRCNN(FasterRCNN):
     """
@@ -216,6 +217,7 @@ class MaskRCNNHeads(nn.Sequential):
                                                   stride=1,
                                                   padding=dilation,
                                                   dilation=dilation)
+            # d[f"SimAM{layer_idx}"]=Simam_module()
             d[f"relu{layer_idx}"] = nn.ReLU(inplace=True)
             next_feature = layers_features
 
@@ -230,6 +232,7 @@ class MaskRCNNPredictor(nn.Sequential):
     def __init__(self, in_channels, dim_reduced, num_classes):
         super().__init__(OrderedDict([
             ("conv5_mask", nn.ConvTranspose2d(in_channels, dim_reduced, 2, 2, 0)),
+            # ("Dysample",DySample(in_channels)),
             ("relu", nn.ReLU(inplace=True)),
             ("mask_fcn_logits", nn.Conv2d(dim_reduced, num_classes, 1, 1, 0))
         ]))
